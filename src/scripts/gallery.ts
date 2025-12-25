@@ -10,15 +10,21 @@ function shuffleInPlace<T>(items: T[]): T[] {
   return items
 }
 
-export function initFancyboxGallery(galleryId = "photoswipe") {
+export function initFancyboxGallery(
+  galleryId = "photoswipe",
+  options?: { shuffle?: boolean }
+) {
   const gallery = document.getElementById(galleryId)
   if (gallery) {
     const links = Array.from(
       gallery.querySelectorAll<HTMLAnchorElement>("a[data-fancybox]")
     )
 
-    shuffleInPlace(links)
-    for (const link of links) gallery.appendChild(link)
+    const shouldShuffle = options?.shuffle ?? true
+    if (shouldShuffle) {
+      shuffleInPlace(links)
+      for (const link of links) gallery.appendChild(link)
+    }
   }
 
   Fancybox.bind("[data-fancybox]", {

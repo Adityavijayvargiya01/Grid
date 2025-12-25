@@ -2,6 +2,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import { ImageScaleSlider } from "~/components/ImageScaleSlider";
 import { ThemeToggle } from "~/components/ThemeToggle";
+import { MotionGallery } from "~/components/MotionGallery";
 import "@fancyapps/ui/dist/fancybox/fancybox.css";
 
 import { createClient } from "@supabase/supabase-js";
@@ -62,34 +63,8 @@ const wallpapers = ((data ?? []) as WallpaperRow[]).map((row) => ({
       <ThemeToggle client:load />
     </div>
   </div>
-  <section class="justified-gallery" id="photoswipe">
-    {
-      wallpapers.map((img, index) => (
-        <a
-          style={`--width: ${img.width}; --height: ${img.height};`}
-          href={img.href}
-          target="_blank"
-          data-fancybox="gallery"
-        >
-          <img
-            src={img.src}
-            alt=""
-            width={img.width}
-            height={img.height}
-            loading={index < 20 ? "eager" : "lazy"}
-            decoding="async"
-          />
-        </a>
-      ))
-    }
-  </section>
+  <MotionGallery wallpapers={wallpapers} client:load />
 </BaseLayout>
-
-<script>
-  import { initFancyboxGallery } from "~/scripts/gallery";
-
-  initFancyboxGallery("photoswipe");
-</script>
 
 <style>
   .topbar {
@@ -111,10 +86,12 @@ const wallpapers = ((data ?? []) as WallpaperRow[]).map((row) => ({
     grid-column: 3;
     justify-self: end;
   }
+</style>
 
+<style is:global>
   .justified-gallery {
     --padding: max(1.5vw, 12px);
-    
+
     --space: max(1.5vw, 12px);
     --min-height: var(--gallery-min-height, clamp(200px, 20vw, 400px));
 

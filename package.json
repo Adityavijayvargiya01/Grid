@@ -26,6 +26,7 @@
     "@supabase/supabase-js": "^2.89.0",
     "astro": "^5.13.10",
     "dotenv": "^17.2.3",
+    "framer-motion": "^12.23.26",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "smartypants": "^0.2.2",
