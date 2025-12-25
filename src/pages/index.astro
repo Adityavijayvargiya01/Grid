@@ -1,13 +1,53 @@
 ---
-import { Image } from "astro:assets";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import { ImageScaleSlider } from "~/components/ImageScaleSlider";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import "@fancyapps/ui/dist/fancybox/fancybox.css";
 
-const images = import.meta.glob<{ default: ImageMetadata }>(
-  "../images/*.{jpg,jpeg,png,webp}",
-);
+import { createClient } from "@supabase/supabase-js";
+
+const SUPABASE_URL = import.meta.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL) throw new Error("SUPABASE_URL is not set");
+if (!SUPABASE_ANON_KEY) throw new Error("SUPABASE_ANON_KEY is not set");
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
+
+type WallpaperRow = {
+  id: string;
+  bucket_path: string;
+  width: number;
+  height: number;
+  blur_data_url: string | null;
+  created_at: string;
+};
+
+const { data, error } = await supabase
+  .from("wallpapers")
+  .select("id,bucket_path,width,height,blur_data_url,created_at")
+  .order("created_at", { ascending: false });
+
+if (error) throw error;
+
+function toPublicStorageUrl(bucketPath: string) {
+  const encoded = bucketPath
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+  return `${SUPABASE_URL}/storage/v1/object/public/wallpapers/${encoded}`;
+}
+
+const wallpapers = ((data ?? []) as WallpaperRow[]).map((row) => ({
+  id: row.id,
+  href: toPublicStorageUrl(row.bucket_path),
+  src: toPublicStorageUrl(row.bucket_path),
+  width: row.width,
+  height: row.height,
+  blurDataUrl: row.blur_data_url,
+}));
 ---
 
 <BaseLayout
@@ -24,25 +64,23 @@ const images = import.meta.glob<{ default: ImageMetadata }>(
   </div>
   <section class="justified-gallery" id="photoswipe">
     {
-      Object.entries(images).map(async ([_path, image], index) => {
-        const { default: imageData } = await image();
-        return (
-          <a
-            style={`--width: ${imageData.width}; --height: ${imageData.height};`}
-            href={imageData.src}
-            target="_blank"
-            data-fancybox="gallery"
-          >
-            <Image
-              format="webp"
-              src={imageData}
-              alt=""
-              height={400}
-              loading={index < 20 ? "eager" : "lazy"}
-            />
-          </a>
-        );
-      })
+      wallpapers.map((img, index) => (
+        <a
+          style={`--width: ${img.width}; --height: ${img.height};`}
+          href={img.href}
+          target="_blank"
+          data-fancybox="gallery"
+        >
+          <img
+            src={img.src}
+            alt=""
+            width={img.width}
+            height={img.height}
+            loading={index < 20 ? "eager" : "lazy"}
+            decoding="async"
+          />
+        </a>
+      ))
     }
   </section>
 </BaseLayout>
