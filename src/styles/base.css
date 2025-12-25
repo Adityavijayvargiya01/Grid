@@ -1,0 +1,114 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --bg-dark: #000000;
+  --outline: #ffffff;
+  --font:
+    system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  
+  /* Slider colors */
+  --primary: #6366f1;
+  --muted: #e5e7eb;
+  --ring: #6366f180;
+
+  /* Slider (UI) colors derived from existing tokens */
+  --slider-track: light-dark(
+    color-mix(in oklab, var(--bg-dark) 10%, var(--bg)),
+    color-mix(in oklab, var(--outline) 22%, var(--bg-dark))
+  );
+  --slider-fill: light-dark(var(--bg-dark), var(--outline));
+}
+
+body {
+  background-color: light-dark(var(--bg), var(--bg-dark));
+  font-family: var(--font);
+}
+
+.apg-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  border: 1px solid
+    light-dark(
+      color-mix(in oklab, var(--bg-dark) 18%, transparent),
+      color-mix(in oklab, var(--outline) 22%, transparent)
+    );
+  background: light-dark(
+    color-mix(in oklab, var(--bg) 92%, var(--bg-dark)),
+    color-mix(in oklab, var(--bg-dark) 92%, var(--outline))
+  );
+  color: light-dark(var(--bg-dark), var(--outline));
+  cursor: pointer;
+}
+
+.apg-theme-toggle:hover {
+  box-shadow: 0 0 0 6px var(--ring);
+}
+
+.apg-theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 6px var(--ring);
+}
+
+.apg-theme-toggle[data-state="on"] {
+  background: light-dark(var(--bg-dark), var(--outline));
+  color: light-dark(var(--bg), var(--bg-dark));
+}
+
+.apg-slider {
+  position: relative;
+  display: flex;
+  width: 100%;
+  touch-action: none;
+  user-select: none;
+  align-items: center;
+}
+
+.apg-slider[data-disabled] {
+  opacity: 0.5;
+}
+
+.apg-slider-track {
+  position: relative;
+  flex-grow: 1;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--slider-track);
+  height: 6px;
+}
+
+.apg-slider-range {
+  position: absolute;
+  height: 100%;
+  background: var(--slider-fill);
+  border-radius: inherit;
+}
+
+.apg-slider-thumb {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: var(--slider-fill);
+  border: 1px solid color-mix(in oklab, var(--slider-fill) 55%, transparent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 120ms ease;
+}
+
+.apg-slider-thumb:hover {
+  box-shadow: 0 0 0 6px var(--ring);
+}
+
+.apg-slider-thumb:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 6px var(--ring);
+}
+
+.apg-slider-thumb:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
