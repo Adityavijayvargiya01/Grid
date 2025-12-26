@@ -4,6 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 
 import { initFancyboxGallery } from "~/scripts/gallery";
 
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+}
+
 type Wallpaper = {
   id: string;
   href: string;
@@ -11,6 +19,7 @@ type Wallpaper = {
   width: number;
   height: number;
   blurDataUrl?: string | null;
+  size?: number;
 };
 
 const PRIORITY_IMAGE_COUNT = 15;
@@ -24,6 +33,7 @@ export function MotionGallery({
 }) {
   const shouldReduceMotion = useReducedMotion();
   const [loadedIds, setLoadedIds] = useState<Set<string>>(() => new Set());
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const markLoaded = useCallback((id: string) => {
     setLoadedIds((prev) => {
@@ -72,6 +82,9 @@ export function MotionGallery({
               ease: [0.21, 0.47, 0.32, 0.98],
               delay: (index % 4) * 0.05,
             }}
+            onMouseEnter={() => setHoveredId(img.id)}
+            onMouseLeave={() => setHoveredId(null)}
+            className="gallery-item"
           >
             <img
               src={img.src}
@@ -100,6 +113,18 @@ export function MotionGallery({
               decoding="async"
               fetchPriority={isPriorityImage ? "high" : "auto"}
             />
+            {hoveredId === img.id && (
+              <div className="image-info">
+                <div className="image-info-dimensions">
+                  {img.height}×{img.width}
+                </div>
+                {img.size && (
+                  <div className="image-info-size">
+                    {formatFileSize(img.size)}
+                  </div>
+                )}
+              </div>
+            )}
           </motion.a>
         );
       })}
