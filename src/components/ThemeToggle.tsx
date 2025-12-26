@@ -1,47 +1,46 @@
-import * as React from "react"
+import { MoonIcon, SunIcon } from "@phosphor-icons/react";
+import * as React from "react";
 
-import { MoonIcon, SunIcon } from "@phosphor-icons/react"
+import { Toggle } from "~/components/ui/toggle";
 
-import { Toggle } from "~/components/ui/toggle"
+const STORAGE_KEY = "apg-theme";
 
-const STORAGE_KEY = "apg-theme"
-
-type Theme = "light" | "dark"
+type Theme = "light" | "dark";
 
 function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "light"
+  if (typeof window === "undefined") return "light";
 
   try {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored === "light" || stored === "dark") return stored
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored === "light" || stored === "dark") return stored;
   } catch {
     // ignore
   }
 
   return window.matchMedia?.("(prefers-color-scheme: dark)")?.matches
     ? "dark"
-    : "light"
+    : "light";
 }
 
 function applyTheme(theme: Theme) {
-  document.documentElement.style.colorScheme = theme
-  document.documentElement.dataset.theme = theme
+  document.documentElement.style.colorScheme = theme;
+  document.documentElement.dataset.theme = theme;
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = React.useState<Theme>(getInitialTheme)
+  const [theme, setTheme] = React.useState<Theme>(getInitialTheme);
 
   React.useEffect(() => {
-    applyTheme(theme)
+    applyTheme(theme);
 
     try {
-      window.localStorage.setItem(STORAGE_KEY, theme)
+      window.localStorage.setItem(STORAGE_KEY, theme);
     } catch {
       // ignore
     }
-  }, [theme])
+  }, [theme]);
 
-  const isDark = theme === "dark"
+  const isDark = theme === "dark";
 
   return (
     <Toggle
@@ -54,7 +53,11 @@ export function ThemeToggle() {
         color: isDark ? "#000000" : "#ffffff",
       }}
     >
-      {isDark ? <MoonIcon size={18} weight="bold" /> : <SunIcon size={18} weight="bold" />}
+      {isDark ? (
+        <MoonIcon size={18} weight="bold" />
+      ) : (
+        <SunIcon size={18} weight="bold" />
+      )}
     </Toggle>
-  )
+  );
 }

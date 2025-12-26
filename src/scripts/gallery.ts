@@ -1,29 +1,29 @@
-import { Fancybox } from "@fancyapps/ui/dist/fancybox/"
+import { Fancybox } from "@fancyapps/ui/dist/fancybox/";
 
 function shuffleInPlace<T>(items: T[]): T[] {
   for (let i = items.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const tmp = items[i]
-    items[i] = items[j] as T
-    items[j] = tmp as T
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = items[i];
+    items[i] = items[j] as T;
+    items[j] = tmp as T;
   }
-  return items
+  return items;
 }
 
 export function initFancyboxGallery(
   galleryId = "photoswipe",
-  options?: { shuffle?: boolean }
+  options?: { shuffle?: boolean },
 ) {
-  const gallery = document.getElementById(galleryId)
+  const gallery = document.getElementById(galleryId);
   if (gallery) {
     const links = Array.from(
-      gallery.querySelectorAll<HTMLAnchorElement>("a[data-fancybox]")
-    )
+      gallery.querySelectorAll<HTMLAnchorElement>("a[data-fancybox]"),
+    );
 
-    const shouldShuffle = options?.shuffle ?? true
+    const shouldShuffle = options?.shuffle ?? true;
     if (shouldShuffle) {
-      shuffleInPlace(links)
-      for (const link of links) gallery.appendChild(link)
+      shuffleInPlace(links);
+      for (const link of links) gallery.appendChild(link);
     }
   }
 
@@ -46,5 +46,5 @@ export function initFancyboxGallery(
       },
       transition: "slide",
     },
-  })
+  });
 }

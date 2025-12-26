@@ -1,8 +1,8 @@
 ---
-import BaseLayout from "~/layouts/BaseLayout.astro";
 import { ImageScaleSlider } from "~/components/ImageScaleSlider";
-import { ThemeToggle } from "~/components/ThemeToggle";
 import { MotionGallery } from "~/components/MotionGallery";
+import { ThemeToggle } from "~/components/ThemeToggle";
+import BaseLayout from "~/layouts/BaseLayout.astro";
 import "@fancyapps/ui/dist/fancybox/fancybox.css";
 
 import { createClient } from "@supabase/supabase-js";
@@ -49,12 +49,23 @@ const wallpapers = ((data ?? []) as WallpaperRow[]).map((row) => ({
   height: row.height,
   blurDataUrl: row.blur_data_url,
 }));
+
+const preloadWallpapers = wallpapers.slice(0, 30);
 ---
 
 <BaseLayout
   title="Grid"
   description="A minimal, single-page photo gallery for Astro."
 >
+  {preloadWallpapers.map((img) => (
+    <link
+      slot="head"
+      rel="preload"
+      as="image"
+      href={img.src}
+      fetchpriority="high"
+    />
+  ))}
   <div class="topbar">
     <div class="topbar-center">
       <ImageScaleSlider client:load />

@@ -45,6 +45,8 @@ const pageTitle = Astro.url.pathname === "/" ? title : `${title} · ${siteName}`
       )
     }
 
+    <slot name="head" />
+
     <script is:inline>
       (() => {
         try {

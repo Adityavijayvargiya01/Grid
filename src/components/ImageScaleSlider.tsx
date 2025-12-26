@@ -1,15 +1,15 @@
-import * as React from "react"
+import * as React from "react";
 
-import { Slider } from "~/components/ui/slider"
+import { Slider } from "~/components/ui/slider";
 
 type ImageScaleSliderProps = {
-  targetId?: string
+  targetId?: string;
   /** Default row/image height in px (controls perceived scale). */
-  defaultPx?: number
-  minPx?: number
-  maxPx?: number
-  stepPx?: number
-}
+  defaultPx?: number;
+  minPx?: number;
+  maxPx?: number;
+  stepPx?: number;
+};
 
 export function ImageScaleSlider({
   targetId = "photoswipe",
@@ -18,14 +18,14 @@ export function ImageScaleSlider({
   maxPx = 520,
   stepPx = 10,
 }: ImageScaleSliderProps) {
-  const [px, setPx] = React.useState(defaultPx)
+  const [px, setPx] = React.useState(defaultPx);
 
   React.useEffect(() => {
-    const el = document.getElementById(targetId)
-    if (!el) return
+    const el = document.getElementById(targetId);
+    if (!el) return;
 
-    el.style.setProperty("--gallery-min-height", `${px}px`)
-  }, [px, targetId])
+    el.style.setProperty("--gallery-min-height", `${px}px`);
+  }, [px, targetId]);
 
   return (
     <div>
@@ -38,5 +38,5 @@ export function ImageScaleSlider({
         onValueChange={(v) => setPx(v[0] ?? defaultPx)}
       />
     </div>
-  )
+  );
 }
