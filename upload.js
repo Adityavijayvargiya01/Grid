@@ -106,10 +106,12 @@ async function uploadOne({ supabase, absolutePath, logPath }) {
 
   let width;
   let height;
+  let fileSize;
   try {
     const meta = await sharp(imageBuffer).metadata();
     width = meta.width;
     height = meta.height;
+    fileSize = imageBuffer.length;
     if (!width || !height)
       throw new Error("Could not determine image dimensions.");
   } catch (err) {
@@ -141,6 +143,7 @@ async function uploadOne({ supabase, absolutePath, logPath }) {
       bucket_path: bucketPath,
       width,
       height,
+      size: fileSize,
       blur_data_url: blurDataUrl,
     })
     .select("id")
@@ -164,12 +167,14 @@ async function uploadOne({ supabase, absolutePath, logPath }) {
     publicUrl: publicUrlData.publicUrl,
     width,
     height,
+    size: fileSize,
     id: inserted.id,
   };
 
   await logLine(logPath, `=== ${absolutePath} ===`);
   await logLine(logPath, `Public URL: ${result.publicUrl}`);
   await logLine(logPath, `Dimensions: ${result.width}x${result.height}`);
+  await logLine(logPath, `Size: ${(result.size / 1024 / 1024).toFixed(2)} MB`);
   await logLine(logPath, `Row ID: ${result.id}`);
   await logLine(logPath, "");
 
@@ -241,6 +246,7 @@ async function main() {
     console.log("\nUpload succeeded");
     console.log(`Public URL: ${result.publicUrl}`);
     console.log(`Dimensions: ${result.width}x${result.height}`);
+    console.log(`Size: ${(result.size / 1024 / 1024).toFixed(2)} MB`);
     console.log(`Row ID: ${result.id}`);
     if (logPath)
       console.log(`Log written to: ${path.resolve(process.cwd(), logPath)}`);

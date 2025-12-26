@@ -5,50 +5,53 @@ import { ThemeToggle } from "~/components/ThemeToggle";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import "@fancyapps/ui/dist/fancybox/fancybox.css";
 
-import { createClient } from "@supabase/supabase-js";
+import fs from "node:fs";
+import path from "node:path";
+import sharp from "sharp";
 
-const SUPABASE_URL = import.meta.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.SUPABASE_ANON_KEY;
+const gridDir = path.join(process.cwd(), "public", "Grid");
+const imageExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif", ".heic", ".tiff"];
 
-if (!SUPABASE_URL) throw new Error("SUPABASE_URL is not set");
-if (!SUPABASE_ANON_KEY) throw new Error("SUPABASE_ANON_KEY is not set");
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: false, autoRefreshToken: false },
+const files = fs.readdirSync(gridDir).filter((file) => {
+  const ext = path.extname(file).toLowerCase();
+  return imageExtensions.includes(ext);
 });
 
-type WallpaperRow = {
-  id: string;
-  bucket_path: string;
-  width: number;
-  height: number;
-  blur_data_url: string | null;
-  created_at: string;
-};
-
-const { data, error } = await supabase
-  .from("wallpapers")
-  .select("id,bucket_path,width,height,blur_data_url,created_at")
-  .order("created_at", { ascending: false });
-
-if (error) throw error;
-
-function toPublicStorageUrl(bucketPath: string) {
-  const encoded = bucketPath
-    .split("/")
-    .map((segment) => encodeURIComponent(segment))
-    .join("/");
-  return `${SUPABASE_URL}/storage/v1/object/public/wallpapers/${encoded}`;
-}
-
-const wallpapers = ((data ?? []) as WallpaperRow[]).map((row) => ({
-  id: row.id,
-  href: toPublicStorageUrl(row.bucket_path),
-  src: toPublicStorageUrl(row.bucket_path),
-  width: row.width,
-  height: row.height,
-  blurDataUrl: row.blur_data_url,
-}));
+const wallpapers = await Promise.all(
+  files.map(async (file, index) => {
+    const filePath = path.join(gridDir, file);
+    const publicPath = `/Grid/${encodeURIComponent(file)}`;
+    
+    let width = 1920;
+    let height = 1080;
+    let blurDataUrl = null;
+    
+    try {
+      const metadata = await sharp(filePath).metadata();
+      width = metadata.width || 1920;
+      height = metadata.height || 1080;
+      
+      const tiny = await sharp(filePath)
+        .resize({ width: 24, withoutEnlargement: true })
+        .blur(8)
+        .jpeg({ quality: 40, mozjpeg: true })
+        .toBuffer();
+      
+      blurDataUrl = `data:image/jpeg;base64,${tiny.toString("base64")}`;
+    } catch (err) {
+      console.warn(`Failed to process ${file}:`, err);
+    }
+    
+    return {
+      id: `${index}-${file}`,
+      href: publicPath,
+      src: publicPath,
+      width,
+      height,
+      blurDataUrl,
+    };
+  })
+);
 
 const preloadWallpapers = wallpapers.slice(0, 30);
 ---
